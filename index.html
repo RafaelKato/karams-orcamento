@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--bg:#f3f2ef;--card:#fff;--border:#e2dfda;--ink:#18171a;--ink2:#55524e;--ink3:#9a978f;--accent:#1c3a5e;--a2:#2b5f96;--green:#166140;--gbg:#e6f4ee;--red:#9b1a1a;--rbg:#fce8e8;--amber:#7a4800;--abg:#fef3db;--bbg:#e8f0fa;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05)}
+:root{--bg:#f3f2ef;--card:#fff;--border:#e2dfda;--ink:#18171a;--ink2:#55524e;--ink3:#9a978f;--accent:#1c3a5e;--a2:#2b5f96;--green:#166140;--gbg:#e6f4ee;--red:#9b1a1a;--rbg:#fce8e8;--bbg:#e8f0fa;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5;min-height:100vh}
 #loading{position:fixed;inset:0;background:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:20px}
@@ -16,7 +16,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 #loading .ls{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase}
 .spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-#errmsg{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--rbg);border:1px solid var(--red);color:var(--red);padding:12px 24px;border-radius:8px;font-size:13px;z-index:500;max-width:600px;text-align:center;line-height:1.6}
+#errmsg{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--rbg);border:1px solid var(--red);color:var(--red);padding:14px 24px;border-radius:8px;font-size:13px;z-index:500;max-width:700px;text-align:center;line-height:1.7}
 .hdr{background:var(--accent);color:#fff;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .hdr-l{display:flex;align-items:center;gap:14px}
 .logo{font-family:'DM Serif Display',serif;font-size:21px;line-height:1}
@@ -24,7 +24,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 .hdiv{width:1px;height:28px;background:rgba(255,255,255,.18)}
 .hsub{font-size:12.5px;color:rgba(255,255,255,.72)}
 .hdr-r{display:flex;align-items:center;gap:10px}
-.uinfo{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.5px}
+.uinfo{font-size:10px;color:rgba(255,255,255,.5)}
 .hpill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:4px 12px;font-size:10.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.88)}
 .wrap{max-width:1500px;margin:0 auto;padding:22px 28px 56px}
 .ctrl{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
@@ -83,7 +83,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 .dt td{padding:7px 14px;font-size:11.5px;border-bottom:1px solid #edeae5;text-align:right;font-family:'IBM Plex Mono',monospace}
 .dt td:first-child{text-align:left;font-family:'Sora',sans-serif}.dt td:nth-child(2){text-align:center;font-family:'Sora',sans-serif}
 .dt tr:last-child td{border-bottom:none}.dt tr:hover td{background:#faf9f7}
-.chip{display:inline-flex;align-items:center;font-family:'Sora',sans-serif;font-size:9.5px;font-weight:600;padding:1px 7px;border-radius:99px}
+.chip{display:inline-flex;font-family:'Sora',sans-serif;font-size:9.5px;font-weight:600;padding:1px 7px;border-radius:99px}
 .pb-w{display:flex;align-items:center;gap:6px}
 .pb{flex:1;height:4px;background:#e8e5e0;border-radius:99px;overflow:hidden;min-width:36px}
 .pbf{height:100%;border-radius:99px}
@@ -112,7 +112,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 <body>
 <div id="loading"><div class="ll">Karams</div><div class="spin"></div><div class="ls">Carregando orçamento...</div></div>
 <div id="errmsg"></div>
-
 <header class="hdr">
   <div class="hdr-l">
     <div class="logo">Karams<small>Estofados</small></div>
@@ -124,7 +123,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
     <div class="hpill">Exercício 2026</div>
   </div>
 </header>
-
 <main class="wrap">
   <div class="ctrl">
     <span class="clbl">Período</span>
@@ -158,73 +156,70 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
     <div class="rg" id="rGrid"></div>
   </div>
 </main>
-
 <script>
-// ── CONFIGURAÇÃO ────────────────────────────────────────────────────────────
-// Altere apenas esta linha quando mudar o nome do arquivo no GitHub
+// ── CONFIG ─────────────────────────────────────────────────────────────────
 const EXCEL_URL = 'https://raw.githubusercontent.com/rafaelkato/karams-orcamento/main/orcamento.xlsx';
 
-// Colunas (índice 0-based) na aba "Acompanhamento Orçamento"
-// Jan=col13/15  Fev=col17/19  Mar=col21/23  Abr=col25/27
-const COLS = [
-  {orc:13, real:15},  // Jan
-  {orc:17, real:19},  // Fev
-  {orc:21, real:23},  // Mar
-  {orc:25, real:27},  // Abr
-];
+// Colunas 0-based: Jan orc=13/real=15, Fev=17/19, Mar=21/23, Abr=25/27
+const COLS = [{orc:13,real:15},{orc:17,real:19},{orc:21,real:23},{orc:25,real:27}];
+const MO   = ['Jan/26','Fev/26','Mar/26','Abr/26'];
+const MOF  = ['Janeiro 2026','Fevereiro 2026','Março 2026','Abril 2026'];
 
-const MO  = ['Jan/26','Fev/26','Mar/26','Abr/26'];
-const MOF = ['Janeiro 2026','Fevereiro 2026','Março 2026','Abril 2026'];
-
-// Linhas-macro identificadas pelo nome exato na planilha
-const MACRO_DEF = [
-  {key:'Faturamento',                     id:'fat', t:'rec', label:'Faturamento'},
-  {key:'Deduções',                        id:'ded', t:'cst', label:'(-) Tributos / Deduções',     cat:'Tributos / Deduções'},
-  {key:'Receita Líquida',                 id:'rl',  t:'sub', label:'Receita Líquida'},
-  {key:'CPV',                             id:'cpv', t:'cst', label:'(-) CPV',                     cat:'CPV'},
-  {key:'Custos Diretos',                  id:'cd',  t:'cst', label:'(-) Custo Direto (MOD)',       cat:'Custo Direto (MOD)'},
-  {key:'Custos Indiretos de Fabricação',  id:'ci',  t:'cst', label:'(-) Custo Indireto (CIF)',     cat:'Custo Indireto (CIF)'},
-  {key:'Lucro Bruto',                     id:'lb',  t:'sub', label:'Lucro Bruto'},
-  {key:'Despesa com Pessoal',             id:'dp',  t:'cst', label:'(-) Despesas c/ Pessoal',     cat:'Despesas com Pessoal'},
-  {key:'Despesas Administrativas',        id:'da',  t:'cst', label:'(-) Despesas Administrativas',cat:'Despesas Administrativas'},
-  {key:'Despesas Comerciais',             id:'dc',  t:'cst', label:'(-) Despesas Comerciais',     cat:'Despesas Comerciais'},
-  {key:'Serviços de Terceiros',           id:'st',  t:'cst', label:'(-) Serviços de Terceiros',   cat:'Serviços de Terceiros'},
-  {key:'Resultado Operacional (EBITDA)',  id:'eb',  t:'ebt', label:'EBITDA'},
-  {key:'Despesas Financeiras',            id:'df',  t:'cst', label:'(-) Despesas Financeiras',    cat:'Despesas Financeiras'},
-  {key:'Lucro Líquido',                   id:'ll',  t:'llt', label:'Lucro Líquido'},
+// Mapeamento das linhas-macro pelo nome exato na planilha
+const MDEFS = [
+  {key:'Faturamento',                    id:'fat',t:'rec',label:'Faturamento'},
+  {key:'Deduções',                       id:'ded',t:'cst',label:'(-) Tributos / Deduções',    cat:'Tributos / Deduções'},
+  {key:'Receita Líquida',                id:'rl', t:'sub',label:'Receita Líquida'},
+  {key:'CPV',                            id:'cpv',t:'cst',label:'(-) CPV',                    cat:'CPV'},
+  {key:'Custos Diretos',                 id:'cd', t:'cst',label:'(-) Custo Direto (MOD)',      cat:'Custo Direto (MOD)'},
+  {key:'Custos Indiretos de Fabricação', id:'ci', t:'cst',label:'(-) Custo Indireto (CIF)',    cat:'Custo Indireto (CIF)'},
+  {key:'Lucro Bruto',                    id:'lb', t:'sub',label:'Lucro Bruto'},
+  {key:'Despesa com Pessoal',            id:'dp', t:'cst',label:'(-) Despesas c/ Pessoal',    cat:'Despesas com Pessoal'},
+  {key:'Despesas Administrativas',       id:'da', t:'cst',label:'(-) Despesas Admin.',         cat:'Despesas Administrativas'},
+  {key:'Despesas Comerciais',            id:'dc', t:'cst',label:'(-) Despesas Comerciais',    cat:'Despesas Comerciais'},
+  {key:'Serviços de Terceiros',          id:'st', t:'cst',label:'(-) Serviços de Terceiros',  cat:'Serviços de Terceiros'},
+  {key:'Resultado Operacional (EBITDA)', id:'eb', t:'ebt',label:'EBITDA'},
+  {key:'Despesas Financeiras',           id:'df', t:'cst',label:'(-) Despesas Financeiras',   cat:'Despesas Financeiras'},
+  {key:'Lucro Líquido',                  id:'ll', t:'llt',label:'Lucro Líquido'},
 ];
-const MKMAP = {};
-MACRO_DEF.forEach(m => MKMAP[m.key] = m);
+const MMAP = {};
+MDEFS.forEach(m => MMAP[m.key] = m);
 
 const RI = {
-  'Rafael':  {c:'#1c3a5e', r:'Diretor de Produção'},
-  'Letícia': {c:'#5b2d8e', r:'Financeiro & Comercial'},
-  'Mylena':  {c:'#166140', r:'Diretora Administrativa'},
-  'Thaís':   {c:'#b84d00', r:'Marketing & Eventos'},
-  'Fábio':   {c:'#8a1a1a', r:'Diretor Geral'},
+  'Rafael':  {c:'#1c3a5e',r:'Diretor de Produção'},
+  'Letícia': {c:'#5b2d8e',r:'Financeiro & Comercial'},
+  'Mylena':  {c:'#166140',r:'Diretora Administrativa'},
+  'Thaís':   {c:'#b84d00',r:'Marketing & Eventos'},
+  'Fábio':   {c:'#8a1a1a',r:'Diretor Geral'},
 };
 
-let macro = [], contas = [], cm = 'all';
-const chts = {};
+let macro=[], contas=[], cm='all';
+const chts={};
 
 // ── LEITURA DO EXCEL ────────────────────────────────────────────────────────
 async function loadData() {
   try {
     const res = await fetch(EXCEL_URL + '?t=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status + ' — arquivo não encontrado no repositório. Verifique se o arquivo orcamento.xlsx foi enviado corretamente.');
-    const ab  = await res.arrayBuffer();
-    const wb  = XLSX.read(ab, {type:'array', cellDates:false});
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — verifique se o arquivo orcamento.xlsx está no repositório.');
+    const ab = await res.arrayBuffer();
 
-    // Busca a aba pelo nome parcial, sem depender do encoding do "ç"
+    // cellFormula:false força SheetJS a usar valores em cache em vez de strings de fórmula
+    const wb = XLSX.read(ab, {type:'array', cellDates:false, cellFormula:false});
+
     const sname = wb.SheetNames.find(n => n.toLowerCase().includes('acompanhamento') && !n.includes('(2)'));
-    if (!sname) throw new Error('Aba de acompanhamento não encontrada. Abas disponíveis: ' + wb.SheetNames.join(', '));
+    if (!sname) throw new Error('Aba não encontrada. Abas: ' + wb.SheetNames.join(', '));
 
-    const ws   = wb.Sheets[sname];
+    const ws = wb.Sheets[sname];
+
+    // Usar sheet_to_json com header:1 para obter array de arrays
+    // dense:false é padrão; defval:null preenche células vazias com null
     const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null});
 
     parseRows(rows);
+
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('uinfo').textContent = 'Atualizado: ' + new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('uinfo').textContent =
+      'Atualizado: ' + new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     buildAll();
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
@@ -234,227 +229,181 @@ async function loadData() {
   }
 }
 
+// ── PARSING ─────────────────────────────────────────────────────────────────
+function toNum(v) {
+  // Aceita número ou string numérica; exclui null/undefined
+  if (v === null || v === undefined) return null;
+  const n = typeof v === 'number' ? v : parseFloat(v);
+  return (isFinite(n)) ? n : null;
+}
+
 function parseRows(rows) {
   const macroMap = {};
   let currentCat = null;
   const tmp = [];
 
-  for (let i = 9; i < rows.length; i++) {
+  // Varrer TODAS as linhas — sem índice fixo
+  for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
-    if (!row) continue;
+    if (!row || row.length < 9) continue;
+
+    // col 8 = Nome da conta (coluna I na planilha)
     const nome = row[8];
+    // col 7 = Responsável (coluna H na planilha)
     const resp = row[7];
+
     if (!nome || typeof nome !== 'string' || !nome.trim()) continue;
 
     const nt = nome.trim();
-    const num = v => (typeof v === 'number' && isFinite(v) && v !== 0) ? v : null;
-    // Para realizado: 0 pode ser dado real — manter como 0 se o orçado também tiver valor
-    const numReal = (v, orcV) => {
-      if (typeof v !== 'number' || !isFinite(v)) return null;
-      if (v === 0 && (orcV === null || orcV === 0)) return null;
-      return v;
-    };
 
-    const orc  = COLS.map(c => num(row[c.orc]));
-    const real = COLS.map((c,i) => numReal(row[c.real], orc[i]));
+    // Extrai os valores de orçado e realizado para cada mês
+    const orc  = COLS.map(c => toNum(row[c.orc]));
+    const real = COLS.map(c => toNum(row[c.real]));
 
-    if (MKMAP[nt]) {
-      const def = MKMAP[nt];
-      // Para linhas macro: guardar real como positivo se vier positivo da planilha, ou negativo convertido
+    if (MMAP[nt]) {
+      // Linha macro (subtotal ou resultado)
+      const def = MMAP[nt];
       macroMap[def.id] = {id:def.id, n:def.label, t:def.t, orc, real};
       if (def.cat) currentCat = def.cat;
-    } else if (resp && typeof resp === 'string' && resp.trim() && resp !== 'Responsável' && currentCat) {
+    } else if (resp && typeof resp === 'string' && resp.trim() !== '' && resp.trim() !== 'Responsável' && currentCat) {
+      // Linha de detalhe com responsável
       tmp.push({cat:currentCat, resp:resp.trim(), n:nt, orc, real});
     }
   }
 
-  macro  = MACRO_DEF.map(d => macroMap[d.id]).filter(Boolean);
+  macro  = MDEFS.map(d => macroMap[d.id]).filter(Boolean);
   contas = tmp;
 }
 
 // ── FORMATADORES ────────────────────────────────────────────────────────────
-function fK(v){if(v===null||v===undefined)return null;const a=Math.abs(v);let s=a>=1e6?'R$'+(a/1e6).toFixed(2).replace('.',',')+'M':a>=1000?'R$'+(a/1000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'K':'R$'+a.toFixed(0);return v<0?'('+s+')':s;}
+function fK(v){if(v===null||v===undefined)return null;const a=Math.abs(v);const s=a>=1e6?'R$'+(a/1e6).toFixed(2).replace('.',',')+'M':a>=1000?'R$'+(a/1000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'K':'R$'+a.toFixed(0);return v<0?'('+s+')':s;}
 function fF(v){if(v===null||v===undefined)return'–';const a=Math.abs(v);const s='R$ '+a.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');return v<0?'('+s+')':s;}
 function fP(v){if(v===null||!isFinite(v))return null;return(v>=0?'+':'')+(v*100).toFixed(1)+'%';}
 
 function gv(arr, m) {
-  if (!arr) return null;
-  if (m === 'all') {
-    const ns = arr.filter(x => x !== null);
-    return ns.length ? ns.reduce((a,b) => a+b, 0) : null;
+  if (!arr||!arr.length) return null;
+  if (m==='all') {
+    const ns = arr.filter(x => x!==null && x!==undefined);
+    return ns.length ? ns.reduce((a,b)=>a+b, 0) : null;
   }
   const v = arr[m];
-  return (v !== undefined && v !== null) ? v : null;
+  return (v!==undefined && v!==null) ? v : null;
 }
 
-// custo: var=(real-|orc|)/|orc| → negativo=favorável
-// receita: var=(real-orc)/orc   → positivo=favorável
+// custo: favorable = real < |orc|  → varPct negativo
+// receita: favorable = real > orc  → varPct positivo
 function calcVar(orc, real, t) {
-  if (orc === null || real === null) return null;
-  const b = Math.abs(orc); if (b === 0) return null;
-  return t === 'rec' ? (real - orc) / orc : (real - b) / b;
+  if (orc===null||real===null) return null;
+  const b = Math.abs(orc); if (b===0) return null;
+  return t==='rec' ? (real-orc)/orc : (real-b)/b;
 }
-function isFav(vp, t) { return vp === null ? null : (t === 'rec' ? vp >= 0 : vp <= 0); }
-function vbadge(vp, t) {
-  if (vp === null) return '<span class="nd">–</span>';
-  return `<span class="vb ${isFav(vp,t)?'pos':'neg'}">${fP(vp)}</span>`;
+function isFav(vp,t){return vp===null?null:(t==='rec'?vp>=0:vp<=0);}
+function vbadge(vp,t){
+  if(vp===null)return'<span class="nd">–</span>';
+  return`<span class="vb ${isFav(vp,t)?'pos':'neg'}">${fP(vp)}</span>`;
 }
 
 // ── KPI ─────────────────────────────────────────────────────────────────────
-function buildKPI() {
-  const fat = macro.find(r=>r.id==='fat')||{orc:[],real:[]};
-  const lb  = macro.find(r=>r.id==='lb') ||{orc:[]};
-  const eb  = macro.find(r=>r.id==='eb') ||{orc:[]};
-  const ll  = macro.find(r=>r.id==='ll') ||{orc:[]};
-  const fO=gv(fat.orc,cm), fR=gv(fat.real,cm), lO=gv(lb.orc,cm), eO=gv(eb.orc,cm), lLO=gv(ll.orc,cm);
-  const fV = fO ? calcVar(fO, fR, 'rec') : null;
+function buildKPI(){
+  const fat=macro.find(r=>r.id==='fat')||{orc:[],real:[]};
+  const lb =macro.find(r=>r.id==='lb') ||{orc:[]};
+  const eb =macro.find(r=>r.id==='eb') ||{orc:[]};
+  const ll =macro.find(r=>r.id==='ll') ||{orc:[]};
+  const fO=gv(fat.orc,cm),fR=gv(fat.real,cm),lO=gv(lb.orc,cm),eO=gv(eb.orc,cm),lLO=gv(ll.orc,cm);
+  const fV=fO?calcVar(fO,fR,'rec'):null;
   function badge(v,g=true){if(v===null||!isFinite(v))return'';const c=(v>=0)===g?'pos':'neg';return`<span class="bv ${c}">${(v>=0?'+':'')+(v*100).toFixed(1)}%</span>`;}
-  function card(lbl,val,foot,badg,cls=''){return`<div class="kpi ${cls}"><div class="klab">${lbl}</div><div class="kval${val.length>14?' sm':''}">${val}</div><div class="kfoot">${foot}${badg?' '+badg:''}</div></div>`;}
-  document.getElementById('krow').innerHTML = [
-    card('Faturamento'+(cm==='all'?' Acum.':' '+MO[cm]), fK(fR)||'–', 'vs orçado '+fF(fO), badge(fV,true), fR!==null&&fO!==null&&fR>=fO?'g':'r'),
-    card('Margem Bruta (Orç.)', lO&&fO?((lO/fO*100).toFixed(1)+'%'):'–', 'Lucro Bruto: '+fF(lO), ''),
-    card('EBITDA'+(cm==='all'?' Acum.':' '+MO[cm]), fK(eO)||'–', eO!==null&&eO>=0?'✓ Positivo':'✗ Negativo', '', eO!==null&&eO>=0?'g':'r'),
-    card('Lucro Líquido', fK(lLO)||'–', lLO!==null&&lLO>=0?'Positivo':'Negativo', '', lLO!==null&&lLO>=0?'g':'r'),
-    card('Desvio Faturamento', fR!==null&&fO!==null?fK(fR-fO):'–', cm==='all'?'acum. Jan–Abr':MO[cm], badge(fV,true), fR!==null&&fO!==null&&fR>=fO?'g':'r'),
+  function card(lbl,val,foot,b,cls=''){return`<div class="kpi ${cls}"><div class="klab">${lbl}</div><div class="kval${val.length>14?' sm':''}">${val}</div><div class="kfoot">${foot}${b?' '+b:''}</div></div>`;}
+  document.getElementById('krow').innerHTML=[
+    card('Faturamento'+(cm==='all'?' Acum.':' '+MO[cm]),fK(fR)||'–','vs orçado '+fF(fO),badge(fV,true),fR!==null&&fO!==null&&fR>=fO?'g':'r'),
+    card('Margem Bruta (Orç.)',lO&&fO?((lO/fO*100).toFixed(1)+'%'):'–','Lucro Bruto: '+fF(lO),''),
+    card('EBITDA'+(cm==='all'?' Acum.':' '+MO[cm]),fK(eO)||'–',eO!==null&&eO>=0?'✓ Positivo':'✗ Negativo','',eO!==null&&eO>=0?'g':'r'),
+    card('Lucro Líquido',fK(lLO)||'–',lLO!==null&&lLO>=0?'Positivo':'Negativo','',lLO!==null&&lLO>=0?'g':'r'),
+    card('Desvio Faturamento',fR!==null&&fO!==null?fK(fR-fO):'–',cm==='all'?'acum. Jan–Abr':MO[cm],badge(fV,true),fR!==null&&fO!==null&&fR>=fO?'g':'r'),
   ].join('');
 }
 
 // ── DRE ─────────────────────────────────────────────────────────────────────
-function buildDRE() {
-  const label = cm==='all' ? 'Acumulado Jan–Abr 2026' : MOF[cm];
-  document.getElementById('dreSub').textContent = label;
-  const cols = cm==='all'
-    ? ['Orçado Acum. (Jan–Abr)','Realizado Acum.','Var. (R$)','Var. (%)']
-    : ['Orçado '+MO[cm],'Realizado '+MO[cm],'Var. (R$)','Var. (%)'];
-  let h = `<thead><tr><th>Conta</th><th>${cols[0]}</th><th>${cols[1]}</th><th>${cols[2]}</th><th>${cols[3]}</th></tr></thead><tbody>`;
-  macro.forEach(row => {
-    const o=gv(row.orc,cm), r=gv(row.real,cm);
-    const vp=calcVar(o,r,row.t), va=(o!==null&&r!==null)?r-Math.abs(o):null;
+function buildDRE(){
+  document.getElementById('dreSub').textContent=cm==='all'?'Acumulado Jan–Abr 2026':MOF[cm];
+  const cols=cm==='all'?['Orçado Acum. (Jan–Abr)','Realizado Acum.','Var. (R$)','Var. (%)']:['Orçado '+MO[cm],'Realizado '+MO[cm],'Var. (R$)','Var. (%)'];
+  let h=`<thead><tr><th>Conta</th><th>${cols[0]}</th><th>${cols[1]}</th><th>${cols[2]}</th><th>${cols[3]}</th></tr></thead><tbody>`;
+  macro.forEach(row=>{
+    const o=gv(row.orc,cm),r=gv(row.real,cm);
+    const vp=calcVar(o,r,row.t),va=(o!==null&&r!==null)?r-Math.abs(o):null;
     const f=isFav(vp,row.t);
     const tc=row.t==='sub'?'sub':row.t==='ebt'?'ebt':row.t==='llt'?'llt':'';
     const vaH=va!==null?`<span style="color:${f?'var(--green)':'var(--red)'};font-weight:600">${fF(va)}</span>`:'<span class="nd">–</span>';
     h+=`<tr class="${tc}"><td>${row.n}</td><td>${o!==null?fF(o):'–'}</td><td>${r!==null?fF(r):'<span class="nd">S/D</span>'}</td><td class="vc">${vaH}</td><td class="vc">${vbadge(vp,row.t)}</td></tr>`;
   });
-  document.getElementById('dreT').innerHTML = h + '</tbody>';
+  document.getElementById('dreT').innerHTML=h+'</tbody>';
 }
 
 // ── CONTAS ───────────────────────────────────────────────────────────────────
-function buildContas() {
-  document.getElementById('cSub').textContent = cm==='all' ? 'Acumulado Jan–Abr 2026 — Orçado vs Realizado' : MOF[cm]+' — Orçado vs Realizado';
-  const cats = [...new Set(contas.map(c=>c.cat))];
-  document.getElementById('cBox').innerHTML = cats.map(cat => {
-    const items = contas.filter(c=>c.cat===cat);
-    const tO = items.reduce((s,c)=>s+(gv(c.orc,cm)||0),0);
-    const wR = items.filter(c=>gv(c.real,cm)!==null);
-    const tR = wR.reduce((s,c)=>s+(gv(c.real,cm)||0),0);
-    const rows = items.map(item => {
-      const o=gv(item.orc,cm), r=gv(item.real,cm);
-      const vp=calcVar(o,r,'cst'), va=(o!==null&&r!==null)?r-Math.abs(o):null;
+function buildContas(){
+  document.getElementById('cSub').textContent=cm==='all'?'Acumulado Jan–Abr 2026 — Orçado vs Realizado':MOF[cm]+' — Orçado vs Realizado';
+  const cats=[...new Set(contas.map(c=>c.cat))];
+  document.getElementById('cBox').innerHTML=cats.map(cat=>{
+    const items=contas.filter(c=>c.cat===cat);
+    const tO=items.reduce((s,c)=>s+(gv(c.orc,cm)||0),0);
+    const wR=items.filter(c=>gv(c.real,cm)!==null);
+    const tR=wR.reduce((s,c)=>s+(gv(c.real,cm)||0),0);
+    const rows=items.map(item=>{
+      const o=gv(item.orc,cm),r=gv(item.real,cm);
+      const vp=calcVar(o,r,'cst'),va=(o!==null&&r!==null)?r-Math.abs(o):null;
       const f=vp!==null&&vp<=0;
       const rc=(RI[item.resp]||{c:'#555'}).c;
       const pct=o&&r?Math.min(r/Math.abs(o)*100,200):null;
-      return`<tr>
-        <td>${item.n}</td>
-        <td><span class="chip" style="background:${rc}18;color:${rc}">${item.resp}</span></td>
-        <td>${fF(o)}</td>
-        <td>${r!==null?fF(r):'<span class="nd">S/D</span>'}</td>
-        <td>${va!==null?`<span style="color:${f?'var(--green)':'var(--red)'};font-weight:600">${fF(va)}</span>`:'<span class="nd">–</span>'}</td>
-        <td>${vp!==null?`<span class="vb ${f?'pos':'neg'}">${fP(vp)}</span>`:'<span class="nd">–</span>'}</td>
-        <td><div class="pb-w"><div class="pb"><div class="pbf" style="width:${Math.min(pct||0,100)}%;background:${pct&&pct>120?'var(--red)':pct&&pct>90?'#d97706':'var(--a2)'}"></div></div><span class="pct">${pct?pct.toFixed(0)+'%':'–'}</span></div></td>
-      </tr>`;
+      return`<tr><td>${item.n}</td><td><span class="chip" style="background:${rc}18;color:${rc}">${item.resp}</span></td><td>${fF(o)}</td><td>${r!==null?fF(r):'<span class="nd">S/D</span>'}</td><td>${va!==null?`<span style="color:${f?'var(--green)':'var(--red)'};font-weight:600">${fF(va)}</span>`:'<span class="nd">–</span>'}</td><td>${vp!==null?`<span class="vb ${f?'pos':'neg'}">${fP(vp)}</span>`:'<span class="nd">–</span>'}</td><td><div class="pb-w"><div class="pb"><div class="pbf" style="width:${Math.min(pct||0,100)}%;background:${pct&&pct>120?'var(--red)':pct&&pct>90?'#d97706':'var(--a2)'}"></div></div><span class="pct">${pct?pct.toFixed(0)+'%':'–'}</span></div></td></tr>`;
     }).join('');
-    const sid = 's_'+cat.replace(/[^a-z0-9]/gi,'_');
-    return`<div class="dsec" id="${sid}">
-      <div class="dsh" onclick="tgl('${sid}')">
-        <h3>${cat}</h3>
-        <div class="meta">
-          <span>Orçado: <strong>${fF(tO)}</strong></span>
-          ${wR.length?`<span>Realizado: <strong>${fF(tR)}</strong></span>`:''}
-          <span class="ti">▾</span>
-        </div>
-      </div>
-      <div class="dtw"><table class="dt">
-        <thead><tr><th>Conta</th><th>Resp.</th><th>Orçado</th><th>Realizado</th><th>Var. (R$)</th><th>Var. (%)</th><th style="width:110px">% Exec.</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>
-    </div>`;
+    const sid='s_'+cat.replace(/[^a-z0-9]/gi,'_');
+    return`<div class="dsec" id="${sid}"><div class="dsh" onclick="tgl('${sid}')"><h3>${cat}</h3><div class="meta"><span>Orçado: <strong>${fF(tO)}</strong></span>${wR.length?`<span>Realizado: <strong>${fF(tR)}</strong></span>`:''}<span class="ti">▾</span></div></div><div class="dtw"><table class="dt"><thead><tr><th>Conta</th><th>Resp.</th><th>Orçado</th><th>Realizado</th><th>Var. (R$)</th><th>Var. (%)</th><th style="width:110px">% Exec.</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join('');
 }
 function tgl(id){document.getElementById(id).classList.toggle('coll');}
 
 // ── RESPONSÁVEIS ─────────────────────────────────────────────────────────────
-function buildResp() {
-  document.getElementById('rSub').textContent = cm==='all' ? 'Acumulado Jan–Abr 2026' : MOF[cm];
-  const resps = [...new Set(contas.map(c=>c.resp))].filter(r=>RI[r]);
-  document.getElementById('rGrid').innerHTML = resps.map(resp => {
-    const info = RI[resp];
-    const items = contas.filter(c=>c.resp===resp);
-    const tO = items.reduce((s,c)=>s+(gv(c.orc,cm)||0),0);
-    const wR = items.filter(c=>gv(c.real,cm)!==null);
-    const tR = wR.reduce((s,c)=>s+(gv(c.real,cm)||0),0);
-    const vp = tO ? calcVar(tO,tR,'cst') : null;
-    const f  = vp!==null&&vp<=0;
-    const cats = [...new Set(items.map(c=>c.cat))];
-    const rows = cats.map(cat => {
-      const ci  = items.filter(c=>c.cat===cat);
-      const cO  = ci.reduce((s,c)=>s+(gv(c.orc,cm)||0),0);
-      const cwR = ci.filter(c=>gv(c.real,cm)!==null);
-      const cR  = cwR.reduce((s,c)=>s+(gv(c.real,cm)||0),0);
-      const catRow = `<tr class="catrow"><td colspan="2">${cat}</td><td>${fF(cO)}</td><td>${cwR.length?fF(cR):'–'}</td><td></td></tr>`;
-      const irows = ci.map(item => {
-        const o=gv(item.orc,cm), r=gv(item.real,cm);
-        const fi=(calcVar(o,r,'cst')||0)<=0;
+function buildResp(){
+  document.getElementById('rSub').textContent=cm==='all'?'Acumulado Jan–Abr 2026':MOF[cm];
+  const resps=[...new Set(contas.map(c=>c.resp))].filter(r=>RI[r]);
+  document.getElementById('rGrid').innerHTML=resps.map(resp=>{
+    const info=RI[resp];
+    const items=contas.filter(c=>c.resp===resp);
+    const tO=items.reduce((s,c)=>s+(gv(c.orc,cm)||0),0);
+    const wR=items.filter(c=>gv(c.real,cm)!==null);
+    const tR=wR.reduce((s,c)=>s+(gv(c.real,cm)||0),0);
+    const vp=tO?calcVar(tO,tR,'cst'):null;
+    const f=vp!==null&&vp<=0;
+    const cats=[...new Set(items.map(c=>c.cat))];
+    const rows=cats.map(cat=>{
+      const ci=items.filter(c=>c.cat===cat);
+      const cO=ci.reduce((s,c)=>s+(gv(c.orc,cm)||0),0);
+      const cwR=ci.filter(c=>gv(c.real,cm)!==null);
+      const cR=cwR.reduce((s,c)=>s+(gv(c.real,cm)||0),0);
+      const catRow=`<tr class="catrow"><td colspan="2">${cat}</td><td>${fF(cO)}</td><td>${cwR.length?fF(cR):'–'}</td><td></td></tr>`;
+      const irows=ci.map(item=>{
+        const o=gv(item.orc,cm),r=gv(item.real,cm);
         const pct=o&&r?Math.min(r/Math.abs(o)*100,200):null;
-        return`<tr>
-          <td style="padding-left:14px">${item.n}</td><td></td>
-          <td>${fF(o)}</td>
-          <td>${r!==null?fF(r):'<span class="nd">–</span>'}</td>
-          <td><div class="pb-w"><div class="pb"><div class="pbf" style="width:${Math.min(pct||0,100)}%;background:${pct&&pct>120?'var(--red)':pct&&pct>90?'#d97706':info.c}"></div></div><span class="pct">${pct?pct.toFixed(0)+'%':'–'}</span></div></td>
-        </tr>`;
+        return`<tr><td style="padding-left:14px">${item.n}</td><td></td><td>${fF(o)}</td><td>${r!==null?fF(r):'<span class="nd">–</span>'}</td><td><div class="pb-w"><div class="pb"><div class="pbf" style="width:${Math.min(pct||0,100)}%;background:${pct&&pct>120?'var(--red)':pct&&pct>90?'#d97706':info.c}"></div></div><span class="pct">${pct?pct.toFixed(0)+'%':'–'}</span></div></td></tr>`;
       }).join('');
-      return catRow + irows;
+      return catRow+irows;
     }).join('');
-    return`<div class="rc">
-      <div class="rch"><div class="rav" style="background:${info.c}">${resp[0]}</div>
-        <div><div class="rn">${resp}</div><div class="rr">${info.r}</div></div></div>
-      <div class="rcs">
-        <div><div class="rsl">Orçado</div><div class="rsv">${fK(tO)||'–'}</div></div>
-        <div><div class="rsl">Realizado</div><div class="rsv">${wR.length?fK(tR):'–'}</div></div>
-        <div><div class="rsl">Variação</div><div class="rsv" style="color:${f?'var(--green)':'var(--red)'}">${vp!==null?(vp>=0?'+':'')+(vp*100).toFixed(1)+'%':'–'}</div></div>
-      </div>
-      <div class="rtw"><table class="rt">
-        <thead><tr><th>Conta</th><th></th><th>Orçado</th><th>Realizado</th><th style="width:80px">% Exec.</th></tr></thead>
-        <tbody>${rows}
-          <tr class="tot"><td>${items.length} contas</td><td></td><td>${fF(tO)}</td><td>${wR.length?fF(tR):'–'}</td><td></td></tr>
-        </tbody>
-      </table></div>
-    </div>`;
+    return`<div class="rc"><div class="rch"><div class="rav" style="background:${info.c}">${resp[0]}</div><div><div class="rn">${resp}</div><div class="rr">${info.r}</div></div></div><div class="rcs"><div><div class="rsl">Orçado</div><div class="rsv">${fK(tO)||'–'}</div></div><div><div class="rsl">Realizado</div><div class="rsv">${wR.length?fK(tR):'–'}</div></div><div><div class="rsl">Variação</div><div class="rsv" style="color:${f?'var(--green)':'var(--red)'}">${vp!==null?(vp>=0?'+':'')+(vp*100).toFixed(1)+'%':'–'}</div></div></div><div class="rtw"><table class="rt"><thead><tr><th>Conta</th><th></th><th>Orçado</th><th>Realizado</th><th style="width:80px">% Exec.</th></tr></thead><tbody>${rows}<tr class="tot"><td>${items.length} contas</td><td></td><td>${fF(tO)}</td><td>${wR.length?fF(tR):'–'}</td><td></td></tr></tbody></table></div></div>`;
   }).join('');
 }
 
 // ── GRÁFICOS ─────────────────────────────────────────────────────────────────
 function dch(id){if(chts[id]){chts[id].destroy();delete chts[id];}}
-function initCharts() {
+function initCharts(){
   const fat=macro.find(r=>r.id==='fat')||{orc:[0,0,0,0],real:[0,0,0,0]};
   const eb =macro.find(r=>r.id==='eb') ||{orc:[0,0,0,0]};
   const ll =macro.find(r=>r.id==='ll') ||{orc:[0,0,0,0]};
   dch('fat');
-  chts['fat']=new Chart(document.getElementById('cFat'),{type:'bar',data:{labels:MO,datasets:[
-    {label:'Orçado',data:fat.orc,backgroundColor:'rgba(28,58,94,.2)',borderColor:'#1c3a5e',borderWidth:2,borderRadius:4},
-    {label:'Realizado',data:fat.real.map(v=>v||0),backgroundColor:'rgba(43,95,150,.75)',borderColor:'#2b5f96',borderWidth:0,borderRadius:4},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Sora',size:11},boxWidth:12}}},
-    scales:{x:{grid:{display:false},ticks:{font:{family:'IBM Plex Mono',size:11}}},y:{grid:{color:'#e8e5e0'},ticks:{font:{family:'IBM Plex Mono',size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'K'}}}}});
+  chts['fat']=new Chart(document.getElementById('cFat'),{type:'bar',data:{labels:MO,datasets:[{label:'Orçado',data:fat.orc.map(v=>v||0),backgroundColor:'rgba(28,58,94,.2)',borderColor:'#1c3a5e',borderWidth:2,borderRadius:4},{label:'Realizado',data:fat.real.map(v=>v||0),backgroundColor:'rgba(43,95,150,.75)',borderColor:'#2b5f96',borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Sora',size:11},boxWidth:12}}},scales:{x:{grid:{display:false},ticks:{font:{family:'IBM Plex Mono',size:11}}},y:{grid:{color:'#e8e5e0'},ticks:{font:{family:'IBM Plex Mono',size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'K'}}}}});
   dch('res');
-  chts['res']=new Chart(document.getElementById('cRes'),{type:'bar',data:{labels:MO,datasets:[
-    {label:'EBITDA',data:eb.orc,backgroundColor:eb.orc.map(v=>v>=0?'rgba(22,97,64,.6)':'rgba(155,26,26,.5)'),borderWidth:0,borderRadius:4},
-    {label:'Lucro Líquido',data:ll.orc,backgroundColor:ll.orc.map(v=>v>=0?'rgba(22,97,64,.9)':'rgba(155,26,26,.85)'),borderWidth:0,borderRadius:4},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Sora',size:11},boxWidth:12}}},
-    scales:{x:{grid:{display:false},ticks:{font:{family:'IBM Plex Mono',size:11}}},y:{grid:{color:'#e8e5e0'},ticks:{font:{family:'IBM Plex Mono',size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'K'}}}}});
+  chts['res']=new Chart(document.getElementById('cRes'),{type:'bar',data:{labels:MO,datasets:[{label:'EBITDA',data:eb.orc.map(v=>v||0),backgroundColor:eb.orc.map(v=>(v||0)>=0?'rgba(22,97,64,.6)':'rgba(155,26,26,.5)'),borderWidth:0,borderRadius:4},{label:'Lucro Líquido',data:ll.orc.map(v=>v||0),backgroundColor:ll.orc.map(v=>(v||0)>=0?'rgba(22,97,64,.9)':'rgba(155,26,26,.85)'),borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Sora',size:11},boxWidth:12}}},scales:{x:{grid:{display:false},ticks:{font:{family:'IBM Plex Mono',size:11}}},y:{grid:{color:'#e8e5e0'},ticks:{font:{family:'IBM Plex Mono',size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'K'}}}}});
   dch('stk');
   const cm2=[{id:'cpv',n:'CPV',c:'#1c3a5e'},{id:'cd',n:'Custo Direto',c:'#2b5f96'},{id:'ci',n:'Custo Indireto',c:'#4a82b8'},{id:'dp',n:'Desp. Pessoal',c:'#166140'},{id:'da',n:'Desp. Admin',c:'#2a9464'},{id:'dc',n:'Desp. Comerciais',c:'#b84d00'},{id:'st',n:'Serv. Terceiros',c:'#e07428'}];
-  chts['stk']=new Chart(document.getElementById('cStk'),{type:'bar',data:{labels:MO,datasets:cm2.map(x=>{const r=macro.find(m=>m.id===x.id)||{orc:[0,0,0,0]};return{label:x.n,data:r.orc.map(v=>Math.abs(v||0)),backgroundColor:x.c,borderWidth:0};})},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:'Sora',size:11},boxWidth:12,padding:8}},tooltip:{callbacks:{label:c=>c.dataset.label+': R$'+(c.raw/1000).toFixed(0)+'K'}}},
-    scales:{x:{stacked:true,grid:{display:false},ticks:{font:{family:'IBM Plex Mono',size:11}}},y:{stacked:true,grid:{color:'#e8e5e0'},ticks:{font:{family:'IBM Plex Mono',size:10},callback:v=>'R$'+(v/1e6).toFixed(1)+'M'}}}}});
+  chts['stk']=new Chart(document.getElementById('cStk'),{type:'bar',data:{labels:MO,datasets:cm2.map(x=>{const r=macro.find(m=>m.id===x.id)||{orc:[0,0,0,0]};return{label:x.n,data:r.orc.map(v=>Math.abs(v||0)),backgroundColor:x.c,borderWidth:0};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:'Sora',size:11},boxWidth:12,padding:8}},tooltip:{callbacks:{label:c=>c.dataset.label+': R$'+(c.raw/1000).toFixed(0)+'K'}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{family:'IBM Plex Mono',size:11}}},y:{stacked:true,grid:{color:'#e8e5e0'},ticks:{font:{family:'IBM Plex Mono',size:10},callback:v=>'R$'+(v/1e6).toFixed(1)+'M'}}}}});
 }
 
 // ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
