@@ -194,7 +194,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 //  Substitua pelo raw URL do seu repositório GitHub
 // ══════════════════════════════════════════════
 const EXCEL_URL = 'https://raw.githubusercontent.com/rafaelkato/karams-orcamento/main/WP_Karams_2026_v2.xlsx';
-const SHEET_NAME = 'Acompanhamento Orçamento';
 // ══════════════════════════════════════════════
 
 const MO  = ['Jan/26','Fev/26','Mar/26'];
@@ -245,9 +244,9 @@ async function loadData() {
     const ab = await res.arrayBuffer();
     const wb = XLSX.read(ab, {type:'array', cellDates:false});
 
-    if (!wb.Sheets[SHEET_NAME]) throw new Error(`Aba "${SHEET_NAME}" não encontrada`);
+    const sheetName = wb.SheetNames.find(n => n.includes('Acompanhamento') && !n.includes('(2)')); if (!sheetName) { throw new Error('Aba nao encontrada. Abas: ' + wb.SheetNames.join(', ')); }
 
-    const ws   = wb.Sheets[SHEET_NAME];
+    const ws = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null});
 
     parseRows(rows);
