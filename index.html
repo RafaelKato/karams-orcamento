@@ -194,16 +194,28 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const EXCEL_URL = 'https://raw.githubusercontent.com/rafaelkato/karams-orcamento/main/orcamento.xlsx';
 
-// Colunas 0-based (c) para cada mês: orc=orçado, real=realizado
-// Jan=N/P(13/15) Fev=R/T(17/19) Mar=V/X(21/23) Abr=Z/AB(25/27)
-const COLS = [
-  {orc:13, real:15},
-  {orc:17, real:19},
-  {orc:21, real:23},
-  {orc:25, real:27},
+// Colunas disponíveis — o dashboard detecta automaticamente quais têm dados
+// Padrão: orc e real alternados a partir da coluna N (13)
+// Nov25=9/-, Dez25=11/-, Jan26=13/15, Fev26=17/19, Mar26=21/23, Abr26=25/27, Mai26=29/31...
+const ALL_COLS = [
+  {orc:13, real:15, label:'Jan/26', full:'Janeiro 2026'},
+  {orc:17, real:19, label:'Fev/26', full:'Fevereiro 2026'},
+  {orc:21, real:23, label:'Mar/26', full:'Março 2026'},
+  {orc:25, real:27, label:'Abr/26', full:'Abril 2026'},
+  {orc:29, real:31, label:'Mai/26', full:'Maio 2026'},
+  {orc:31, real:33, label:'Jun/26', full:'Junho 2026'},
+  {orc:33, real:35, label:'Jul/26', full:'Julho 2026'},
+  {orc:35, real:37, label:'Ago/26', full:'Agosto 2026'},
+  {orc:37, real:39, label:'Set/26', full:'Setembro 2026'},
+  {orc:39, real:41, label:'Out/26', full:'Outubro 2026'},
+  {orc:41, real:43, label:'Nov/26', full:'Novembro 2026'},
+  {orc:43, real:45, label:'Dez/26', full:'Dezembro 2026'},
 ];
-const MO  = ['Jan/26','Fev/26','Mar/26','Abr/26'];
-const MOF = ['Janeiro 2026','Fevereiro 2026','Março 2026','Abril 2026'];
+
+// Será preenchido após leitura do Excel
+let COLS = [];
+let MO   = [];
+let MOF  = [];
 
 const MDEFS = [
   {key:'Faturamento',                    id:'fat',t:'rec',label:'Faturamento'},
@@ -291,6 +303,32 @@ function parseWorksheet(ws) {
   const macroMap = {};
   let currentCat = null;
   const tmp = [];
+
+  // Detecta quais meses têm dados (orçado) na linha do Faturamento
+  // Varre todas as linhas procurando "Faturamento"
+  COLS = [];
+  MO   = [];
+  MOF  = [];
+  for (let r = range.s.r; r <= range.e.r; r++) {
+    const nome = cellStr(ws, 8, r);
+    if (nome === 'Faturamento') {
+      ALL_COLS.forEach(col => {
+        const v = cellVal(ws, col.orc, r);
+        if (v !== null && Math.abs(v) > 0) {
+          COLS.push({orc: col.orc, real: col.real});
+          MO.push(col.label);
+          MOF.push(col.full);
+        }
+      });
+      break;
+    }
+  }
+  // Fallback: usa Jan-Mar se não detectar nada
+  if (COLS.length === 0) {
+    COLS = [{orc:13,real:15},{orc:17,real:19},{orc:21,real:23}];
+    MO   = ['Jan/26','Fev/26','Mar/26'];
+    MOF  = ['Janeiro 2026','Fevereiro 2026','Março 2026'];
+  }
 
   // Iterar cada linha dentro do range
   for (let r = range.s.r; r <= range.e.r; r++) {
@@ -433,7 +471,29 @@ function initCharts(){
 // ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
 function sTab(n,btn){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));btn.classList.add('on');document.getElementById('tab-'+n).classList.add('on');}
 function setM(m,btn){cm=m;document.querySelectorAll('.mp').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildKPI();buildDRE();buildContas();buildResp();}
-function buildAll(){buildKPI();buildDRE();buildContas();buildResp();requestAnimationFrame(initCharts);}
+function buildAll(){
+  // Reconstrói os botões de mês dinamicamente
+  const ctrl = document.querySelector('.ctrl');
+  if (ctrl) {
+    // Remove botões de mês antigos (mantém o label "Período")
+    ctrl.querySelectorAll('.mp').forEach(b => b.remove());
+    // Adiciona botão Acumulado
+    const ac = document.createElement('button');
+    ac.className = 'mp ac on';
+    ac.textContent = 'Acumulado';
+    ac.onclick = function(){ setM('all', this); };
+    ctrl.appendChild(ac);
+    // Adiciona um botão por mês detectado
+    MO.forEach((label, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'mp';
+      btn.textContent = label;
+      btn.onclick = function(){ setM(idx, this); };
+      ctrl.appendChild(btn);
+    });
+  }
+  buildKPI();buildDRE();buildContas();buildResp();requestAnimationFrame(initCharts);
+}
 
 // ── AUTH LOCAL ───────────────────────────────────────────────────────────
 // Credenciais armazenadas como hash SHA-256 (não ficam em texto puro)
