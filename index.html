@@ -12,8 +12,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5;min-height:100vh}
 #loading{position:fixed;inset:0;background:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:20px}
-#loading .ll{font-family:'DM Serif Display',serif;font-size:36px;color:#fff}
-#loading .ls{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase}
+.ll{font-family:'DM Serif Display',serif;font-size:36px;color:#fff}
+.ls{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase}
 .spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 #errmsg{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--rbg);border:1px solid var(--red);color:var(--red);padding:14px 24px;border-radius:8px;font-size:13px;z-index:500;max-width:700px;text-align:center;line-height:1.7}
@@ -157,15 +157,20 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
   </div>
 </main>
 <script>
-// ── CONFIG ─────────────────────────────────────────────────────────────────
+// ── CONFIG ──────────────────────────────────────────────────────────────────
 const EXCEL_URL = 'https://raw.githubusercontent.com/rafaelkato/karams-orcamento/main/orcamento.xlsx';
 
-// Colunas 0-based: Jan orc=13/real=15, Fev=17/19, Mar=21/23, Abr=25/27
-const COLS = [{orc:13,real:15},{orc:17,real:19},{orc:21,real:23},{orc:25,real:27}];
-const MO   = ['Jan/26','Fev/26','Mar/26','Abr/26'];
-const MOF  = ['Janeiro 2026','Fevereiro 2026','Março 2026','Abril 2026'];
+// Colunas 0-based (c) para cada mês: orc=orçado, real=realizado
+// Jan=N/P(13/15) Fev=R/T(17/19) Mar=V/X(21/23) Abr=Z/AB(25/27)
+const COLS = [
+  {orc:13, real:15},
+  {orc:17, real:19},
+  {orc:21, real:23},
+  {orc:25, real:27},
+];
+const MO  = ['Jan/26','Fev/26','Mar/26','Abr/26'];
+const MOF = ['Janeiro 2026','Fevereiro 2026','Março 2026','Abril 2026'];
 
-// Mapeamento das linhas-macro pelo nome exato na planilha
 const MDEFS = [
   {key:'Faturamento',                    id:'fat',t:'rec',label:'Faturamento'},
   {key:'Deduções',                       id:'ded',t:'cst',label:'(-) Tributos / Deduções',    cat:'Tributos / Deduções'},
@@ -200,22 +205,14 @@ const chts={};
 async function loadData() {
   try {
     const res = await fetch(EXCEL_URL + '?t=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status + ' — verifique se o arquivo orcamento.xlsx está no repositório.');
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — arquivo não encontrado no repositório.');
     const ab = await res.arrayBuffer();
-
-    // cellFormula:false força SheetJS a usar valores em cache em vez de strings de fórmula
-    const wb = XLSX.read(ab, {type:'array', cellDates:false, cellFormula:false});
+    const wb = XLSX.read(ab, {type:'array'});
 
     const sname = wb.SheetNames.find(n => n.toLowerCase().includes('acompanhamento') && !n.includes('(2)'));
     if (!sname) throw new Error('Aba não encontrada. Abas: ' + wb.SheetNames.join(', '));
 
-    const ws = wb.Sheets[sname];
-
-    // Usar sheet_to_json com header:1 para obter array de arrays
-    // dense:false é padrão; defval:null preenche células vazias com null
-    const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:null});
-
-    parseRows(rows);
+    parseWorksheet(wb.Sheets[sname]);
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('uinfo').textContent =
@@ -229,45 +226,57 @@ async function loadData() {
   }
 }
 
-// ── PARSING ─────────────────────────────────────────────────────────────────
-function toNum(v) {
-  // Aceita número ou string numérica; exclui null/undefined
-  if (v === null || v === undefined) return null;
-  const n = typeof v === 'number' ? v : parseFloat(v);
-  return (isFinite(n)) ? n : null;
+// ── PARSING — acesso direto por endereço de célula (ex: ws['N10']) ──────────
+function cellVal(ws, col, row) {
+  // col e row são 0-based; XLSX.utils.encode_cell converte para endereço Excel
+  const addr = XLSX.utils.encode_cell({c: col, r: row});
+  const cell = ws[addr];
+  if (!cell) return null;
+  // Usa o valor numérico (v) — funciona tanto para valores diretos quanto para fórmulas com cache
+  if (typeof cell.v === 'number' && isFinite(cell.v)) return cell.v;
+  // Tenta w (texto formatado) como fallback e converte para número
+  if (cell.w) {
+    const n = parseFloat(cell.w.replace(/[^\d.,-]/g,'').replace(',','.'));
+    if (isFinite(n)) return n;
+  }
+  return null;
 }
 
-function parseRows(rows) {
+function cellStr(ws, col, row) {
+  const addr = XLSX.utils.encode_cell({c: col, r: row});
+  const cell = ws[addr];
+  if (!cell) return null;
+  const v = cell.v !== undefined ? cell.v : (cell.w || null);
+  return v !== null && v !== undefined ? String(v).trim() : null;
+}
+
+function parseWorksheet(ws) {
+  // Determina o range da aba
+  const ref   = ws['!ref'] || 'A1:A1';
+  const range = XLSX.utils.decode_range(ref);
   const macroMap = {};
   let currentCat = null;
   const tmp = [];
 
-  // Varrer TODAS as linhas — sem índice fixo
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row || row.length < 9) continue;
+  // Iterar cada linha dentro do range
+  for (let r = range.s.r; r <= range.e.r; r++) {
+    // col 8 (I) = nome da conta
+    const nome = cellStr(ws, 8, r);
+    if (!nome) continue;
 
-    // col 8 = Nome da conta (coluna I na planilha)
-    const nome = row[8];
-    // col 7 = Responsável (coluna H na planilha)
-    const resp = row[7];
+    // col 7 (H) = responsável
+    const resp = cellStr(ws, 7, r);
 
-    if (!nome || typeof nome !== 'string' || !nome.trim()) continue;
+    // Extrair valores orçado/realizado para os 4 meses
+    const orc  = COLS.map(c => cellVal(ws, c.orc,  r));
+    const real = COLS.map(c => cellVal(ws, c.real, r));
 
-    const nt = nome.trim();
-
-    // Extrai os valores de orçado e realizado para cada mês
-    const orc  = COLS.map(c => toNum(row[c.orc]));
-    const real = COLS.map(c => toNum(row[c.real]));
-
-    if (MMAP[nt]) {
-      // Linha macro (subtotal ou resultado)
-      const def = MMAP[nt];
+    if (MMAP[nome]) {
+      const def = MMAP[nome];
       macroMap[def.id] = {id:def.id, n:def.label, t:def.t, orc, real};
       if (def.cat) currentCat = def.cat;
-    } else if (resp && typeof resp === 'string' && resp.trim() !== '' && resp.trim() !== 'Responsável' && currentCat) {
-      // Linha de detalhe com responsável
-      tmp.push({cat:currentCat, resp:resp.trim(), n:nt, orc, real});
+    } else if (resp && resp !== 'Responsável' && currentCat) {
+      tmp.push({cat:currentCat, resp, n:nome, orc, real});
     }
   }
 
@@ -279,29 +288,10 @@ function parseRows(rows) {
 function fK(v){if(v===null||v===undefined)return null;const a=Math.abs(v);const s=a>=1e6?'R$'+(a/1e6).toFixed(2).replace('.',',')+'M':a>=1000?'R$'+(a/1000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'K':'R$'+a.toFixed(0);return v<0?'('+s+')':s;}
 function fF(v){if(v===null||v===undefined)return'–';const a=Math.abs(v);const s='R$ '+a.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');return v<0?'('+s+')':s;}
 function fP(v){if(v===null||!isFinite(v))return null;return(v>=0?'+':'')+(v*100).toFixed(1)+'%';}
-
-function gv(arr, m) {
-  if (!arr||!arr.length) return null;
-  if (m==='all') {
-    const ns = arr.filter(x => x!==null && x!==undefined);
-    return ns.length ? ns.reduce((a,b)=>a+b, 0) : null;
-  }
-  const v = arr[m];
-  return (v!==undefined && v!==null) ? v : null;
-}
-
-// custo: favorable = real < |orc|  → varPct negativo
-// receita: favorable = real > orc  → varPct positivo
-function calcVar(orc, real, t) {
-  if (orc===null||real===null) return null;
-  const b = Math.abs(orc); if (b===0) return null;
-  return t==='rec' ? (real-orc)/orc : (real-b)/b;
-}
+function gv(arr,m){if(!arr||!arr.length)return null;if(m==='all'){const ns=arr.filter(x=>x!==null);return ns.length?ns.reduce((a,b)=>a+b,0):null;}const v=arr[m];return(v!==undefined&&v!==null)?v:null;}
+function calcVar(orc,real,t){if(orc===null||real===null)return null;const b=Math.abs(orc);if(b===0)return null;return t==='rec'?(real-orc)/orc:(real-b)/b;}
 function isFav(vp,t){return vp===null?null:(t==='rec'?vp>=0:vp<=0);}
-function vbadge(vp,t){
-  if(vp===null)return'<span class="nd">–</span>';
-  return`<span class="vb ${isFav(vp,t)?'pos':'neg'}">${fP(vp)}</span>`;
-}
+function vbadge(vp,t){if(vp===null)return'<span class="nd">–</span>';return`<span class="vb ${isFav(vp,t)?'pos':'neg'}">${fP(vp)}</span>`;}
 
 // ── KPI ─────────────────────────────────────────────────────────────────────
 function buildKPI(){
