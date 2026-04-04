@@ -1,6 +1,22 @@
 [build]
   publish = "."
 
+# Redireciona tokens de convite/recuperação para a página de confirmação
+[[redirects]]
+  from = "/#invite_token=*"
+  to = "/confirm.html"
+  status = 200
+
+[[redirects]]
+  from = "/#recovery_token=*"
+  to = "/confirm.html"
+  status = 200
+
+[[redirects]]
+  from = "/#confirmation_token=*"
+  to = "/confirm.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
