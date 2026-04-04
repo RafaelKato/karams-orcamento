@@ -304,36 +304,49 @@ function parseWorksheet(ws) {
   let currentCat = null;
   const tmp = [];
 
-  // Detecta quais meses mostrar:
-  // Só inclui meses que têm coluna "Realizado" na linha de cabeçalho (linha 4, idx 3)
-  // E que têm valor de orçado na linha do Faturamento
+  // Detecta meses válidos lendo os cabeçalhos diretamente da planilha:
+  // Linha 4 (r=3): tipo da coluna — "Orçado" ou "Realizado"
+  // Linha 5 (r=4): data da coluna
+  // Um mês é válido quando a MESMA data aparece duas vezes:
+  //   uma com "Orçado" e outra com "Realizado"
   COLS = [];
   MO   = [];
   MOF  = [];
 
-  // Primeiro: descobre quais colunas têm header "Realizado" (row index 3)
-  const realCols = new Set();
-  for (let c = 0; c <= range.e.c; c++) {
-    const v = cellStr(ws, c, 3);
-    if (v && v.toLowerCase().includes('realizado')) realCols.add(c);
+  // Mapa: data (número serial) → {orc: col, real: col}
+  const dateMap = {};
+  for (let c = range.s.c; c <= range.e.c; c++) {
+    const tipo = cellStr(ws, c, 3); // linha 4: Orçado ou Realizado
+    const data = cellVal(ws, c, 4); // linha 5: data (número serial Excel)
+    if (!tipo || data === null) continue;
+    const key = Math.round(data); // arredonda para evitar decimais
+    if (!dateMap[key]) dateMap[key] = {};
+    if (tipo.toLowerCase().includes('realizado')) dateMap[key].real = c;
+    else if (tipo.toLowerCase().includes('or')) dateMap[key].orc = c;
   }
 
-  // Segundo: para cada mês em ALL_COLS, inclui só se a coluna real está em realCols
-  // E se a linha do Faturamento tem orçado > 0
-  let fatRow = -1;
-  for (let r = range.s.r; r <= range.e.r; r++) {
-    if (cellStr(ws, 8, r) === 'Faturamento') { fatRow = r; break; }
+  // Meses válidos: têm AMBAS as colunas (orc e real)
+  const validMonths = Object.entries(dateMap)
+    .filter(([, v]) => v.orc !== undefined && v.real !== undefined)
+    .sort(([a], [b]) => Number(a) - Number(b)); // ordena por data
+
+  // Converte serial Excel para nome do mês
+  const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const MONTH_FULL  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  function serialToDate(serial) {
+    // Excel serial: dias desde 1900-01-00 (com bug do 1900 como bissexto)
+    const d = new Date((serial - 25569) * 86400 * 1000);
+    return {m: d.getUTCMonth(), y: d.getUTCFullYear()};
   }
 
-  ALL_COLS.forEach(col => {
-    if (!realCols.has(col.real)) return; // sem coluna Realizado = não mostra
-    if (fatRow < 0) return;
-    const v = cellVal(ws, col.orc, fatRow);
-    if (v !== null && Math.abs(v) > 0) {
-      COLS.push({orc: col.orc, real: col.real});
-      MO.push(col.label);
-      MOF.push(col.full);
-    }
+  validMonths.forEach(([serial, cols]) => {
+    const {m, y} = serialToDate(Number(serial));
+    const label = MONTH_NAMES[m] + '/' + String(y).slice(2);
+    const full  = MONTH_FULL[m] + ' ' + y;
+    COLS.push({orc: cols.orc, real: cols.real});
+    MO.push(label);
+    MOF.push(full);
   });
 
   // Fallback
