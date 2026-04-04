@@ -426,65 +426,107 @@ function sTab(n,btn){document.querySelectorAll('.tbtn').forEach(b=>b.classList.r
 function setM(m,btn){cm=m;document.querySelectorAll('.mp').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildKPI();buildDRE();buildContas();buildResp();}
 function buildAll(){buildKPI();buildDRE();buildContas();buildResp();requestAnimationFrame(initCharts);}
 
-// ── NETLIFY IDENTITY AUTH ────────────────────────────────────────────────
+// ── NETLIFY IDENTITY AUTH (API direta) ──────────────────────────────────
+const NETLIFY_API = 'https://karamsorcamento.netlify.app/.netlify/identity';
+
 function initAuth() {
-  const ni = window.netlifyIdentity;
-  if (!ni) { loadData(); return; }
-
-  ni.init();
-
-  const user = ni.currentUser();
-  if (user) {
-    setUserInfo(user);
-    showLogout();
-    loadData();
-  } else {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('loading').style.display = 'none';
+  // Checar sessão salva
+  const token = sessionStorage.getItem('ni_token');
+  const userStr = sessionStorage.getItem('ni_user');
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      setUserInfo(user);
+      showLogout();
+      loadData();
+      return;
+    } catch(e) {}
   }
+  // Mostrar tela de login
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('loading').style.display = 'none';
+}
 
-  ni.on('login', user => {
+async function doLogin() {
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+  const err   = document.getElementById('li-err');
+  const btn   = document.querySelector('.login-btn');
+
+  if (!email || !pass) { err.textContent = 'Preencha e-mail e senha.'; return; }
+
+  err.textContent = '';
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(NETLIFY_API + '/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'grant_type=password&username=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(pass)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error_description || 'E-mail ou senha incorretos.');
+    }
+
+    const token = await res.json();
+
+    // Buscar dados do usuário
+    const userRes = await fetch(NETLIFY_API + '/user', {
+      headers: {'Authorization': 'Bearer ' + token.access_token}
+    });
+    const user = await userRes.json();
+
+    sessionStorage.setItem('ni_token', token.access_token);
+    sessionStorage.setItem('ni_user', JSON.stringify(user));
+
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('loading').style.display = 'flex';
-    ni.close();
     setUserInfo(user);
     showLogout();
     loadData();
+
+  } catch(e) {
+    err.textContent = e.message || 'Erro ao fazer login. Tente novamente.';
+    btn.textContent = 'Entrar';
+    btn.disabled = false;
+  }
+}
+
+// Permitir Enter no campo de senha
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('li-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('li-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
   });
 
-  ni.on('logout', () => { location.reload(); });
-}
+  // Botão sair
+  const btn = document.createElement('button');
+  btn.id = 'btn-logout';
+  btn.textContent = 'Sair';
+  btn.style.cssText = 'background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:4px 12px;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.88);cursor:pointer;margin-right:8px;display:none;';
+  btn.onclick = () => {
+    sessionStorage.removeItem('ni_token');
+    sessionStorage.removeItem('ni_user');
+    location.reload();
+  };
+  const hdrR = document.querySelector('.hdr-r');
+  if (hdrR) hdrR.prepend(btn);
+});
 
 function setUserInfo(user) {
   const name = (user.user_metadata && user.user_metadata.full_name) || user.email || '';
   document.getElementById('uinfo').textContent = 'Olá, ' + name.split(' ')[0];
 }
 
-function doLogin() {
-  const ni = window.netlifyIdentity;
-  if (!ni) return;
-  const email = document.getElementById('li-email').value.trim();
-  const pass  = document.getElementById('li-pass').value;
-  const err   = document.getElementById('li-err');
-  if (!email || !pass) { err.textContent = 'Preencha e-mail e senha.'; return; }
-  err.textContent = '';
-  ni.open('login');
-}
-
 function showLogout() {
   const b = document.getElementById('btn-logout');
   if (b) b.style.display = 'block';
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.createElement('button');
-  btn.id = 'btn-logout';
-  btn.textContent = 'Sair';
-  btn.style.cssText = 'background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:4px 12px;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.88);cursor:pointer;margin-right:8px;display:none;';
-  btn.onclick = () => window.netlifyIdentity && window.netlifyIdentity.logout();
-  const hdrR = document.querySelector('.hdr-r');
-  if (hdrR) hdrR.prepend(btn);
-});
 
 initAuth();
 </script>
