@@ -7,69 +7,18 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Sora', sans-serif;
-    background: #1c3a5e;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .box {
-    background: #fff;
-    border-radius: 16px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    text-align: center;
-  }
-  .logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: #1c3a5e;
-    margin-bottom: 4px;
-  }
-  .sub {
-    font-size: 11px;
-    color: #9a978f;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-  }
-  .msg {
-    font-size: 14px;
-    color: #55524e;
-    line-height: 1.6;
-    margin-bottom: 24px;
-  }
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid #e2dfda;
-    border-top-color: #1c3a5e;
-    border-radius: 50%;
-    animation: sp .8s linear infinite;
-    margin: 0 auto 20px;
-  }
-  @keyframes sp { to { transform: rotate(360deg); } }
-  .btn {
-    display: inline-block;
-    padding: 12px 28px;
-    background: #1c3a5e;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Sora', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background .15s;
-  }
-  .btn:hover { background: #2b5f96; }
-  .err { color: #9b1a1a; font-size: 13px; margin-top: 16px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#1c3a5e;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.box{background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.logo{font-family:'DM Serif Display',serif;font-size:28px;color:#1c3a5e;margin-bottom:4px}
+.sub{font-size:11px;color:#9a978f;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.spinner{width:32px;height:32px;border:3px solid #e2dfda;border-top-color:#1c3a5e;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 20px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.msg{font-size:14px;color:#55524e;line-height:1.6;margin-bottom:24px}
+.btn{display:inline-block;padding:12px 28px;background:#1c3a5e;color:#fff;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s;margin-top:8px}
+.btn:hover{background:#2b5f96}
+.err{color:#9b1a1a;font-size:13px;margin-top:16px}
+.ok{color:#166140;font-size:14px;font-weight:600;margin-top:8px}
 </style>
 </head>
 <body>
@@ -77,77 +26,75 @@
   <div class="logo">Karams</div>
   <div class="sub">Dashboard Orçamentário</div>
   <div class="spinner" id="spin"></div>
-  <div class="msg" id="msg">Verificando seu link de acesso...</div>
+  <div class="msg" id="msg">Carregando...</div>
   <div id="action"></div>
   <div class="err" id="err"></div>
 </div>
 
 <script>
-  const hash = window.location.hash;
+  var hash = window.location.hash;
+  var hasInvite    = hash.includes('invite_token=');
+  var hasRecovery  = hash.includes('recovery_token=');
+  var hasConfirm   = hash.includes('confirmation_token=');
+  var hasToken     = hasInvite || hasRecovery || hasConfirm;
 
-  function setMsg(text) {
-    document.getElementById('msg').textContent = text;
-  }
-  function hideSpin() {
-    document.getElementById('spin').style.display = 'none';
-  }
-  function setAction(html) {
-    document.getElementById('action').innerHTML = html;
-  }
-  function setErr(text) {
-    document.getElementById('err').textContent = text;
-  }
+  function $(id){ return document.getElementById(id); }
+  function hideSpin(){ $('spin').style.display='none'; }
+  function setMsg(t){ $('msg').textContent=t; }
+  function setAction(h){ $('action').innerHTML=h; }
+  function setErr(t){ $('err').textContent=t; }
+  function setOk(t){ $('action').innerHTML='<div class="ok">'+t+'</div>'; }
 
-  // Netlify Identity events
-  if (window.netlifyIdentity) {
-    const ni = window.netlifyIdentity;
+  if (!hasToken) {
+    // Sem token — vai para login
+    hideSpin();
+    setMsg('Link inválido ou expirado.');
+    setAction('<a class="btn" href="/">Voltar ao login</a>');
+  } else {
+    // TEM TOKEN — limpa qualquer sessão anterior para evitar conflito
+    try { localStorage.removeItem('gotrue.user'); } catch(e){}
+    try { sessionStorage.removeItem('ni_token'); sessionStorage.removeItem('ni_user'); } catch(e){}
 
-    ni.on('init', user => {
-      if (user) {
-        // Já logado — redireciona pro dashboard
-        hideSpin();
-        setMsg('Você já está logado. Redirecionando...');
-        setTimeout(() => { window.location.href = '/'; }, 1500);
-      } else if (hash.includes('invite_token=') || hash.includes('confirmation_token=')) {
-        // Token de convite — widget vai abrir automaticamente para criar senha
-        hideSpin();
-        setMsg('Configure sua senha para acessar o Dashboard Orçamentário da Karams.');
-        setAction('<button class="btn" onclick="window.netlifyIdentity.open()">Criar minha senha</button>');
-      } else if (hash.includes('recovery_token=')) {
-        // Token de recuperação — widget vai abrir para nova senha
-        hideSpin();
-        setMsg('Defina uma nova senha para sua conta.');
-        setAction('<button class="btn" onclick="window.netlifyIdentity.open()">Redefinir senha</button>');
-      } else {
-        // Nenhum token — redireciona pro login
-        hideSpin();
-        setMsg('Link inválido ou expirado. Volte para o dashboard e faça login.');
-        setAction('<a class="btn" href="/">Ir para o login</a>');
+    if (hasInvite || hasConfirm) {
+      setMsg('Clique no botão abaixo para criar sua senha de acesso ao Dashboard da Karams.');
+    } else {
+      setMsg('Clique no botão abaixo para redefinir sua senha.');
+    }
+
+    hideSpin();
+    setAction('<button class="btn" id="openBtn">Criar / Redefinir senha</button>');
+
+    document.getElementById('openBtn').addEventListener('click', function() {
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.open();
       }
     });
 
-    ni.on('login', user => {
-      hideSpin();
-      setMsg('Senha criada com sucesso! Redirecionando para o dashboard...');
-      setAction('');
-      ni.close();
-      setTimeout(() => { window.location.href = '/'; }, 1500);
-    });
+    if (window.netlifyIdentity) {
+      var ni = window.netlifyIdentity;
 
-    ni.on('error', err => {
-      hideSpin();
-      setErr('Erro: ' + (err.message || 'Tente novamente ou solicite um novo convite.'));
-    });
+      ni.on('login', function(user) {
+        ni.close();
+        hideSpin();
+        setMsg('');
+        setOk('✓ Senha definida com sucesso!');
+        setAction('<a class="btn" href="/">Acessar o Dashboard</a>');
+        // Limpa sessão do widget — o login real é feito pela API
+        try { ni.logout(); } catch(e){}
+      });
 
-    ni.init();
+      ni.on('error', function(err) {
+        setErr('Erro: ' + (err.message || 'Tente novamente ou solicite um novo convite.'));
+      });
 
-    // Se tiver token no hash, abre o widget automaticamente após init
-    if (hash.includes('invite_token=') || hash.includes('recovery_token=') || hash.includes('confirmation_token=')) {
-      setTimeout(() => { ni.open(); }, 800);
+      // Inicializa o widget SEM fazer logout automático
+      ni.init({APIUrl: 'https://karamsorcamento.netlify.app/.netlify/identity'});
+
+      // Abre automaticamente após um momento para processar o token
+      setTimeout(function() {
+        ni.open();
+      }, 600);
     }
-  } else {
-    hideSpin();
-    setMsg('Erro ao carregar o sistema de autenticação. Recarregue a página.');
   }
 </script>
 </body>
