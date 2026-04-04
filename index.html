@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Orçamentário 2026 — Karams Estofados</title>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -11,6 +12,19 @@
 :root{--bg:#f3f2ef;--card:#fff;--border:#e2dfda;--ink:#18171a;--ink2:#55524e;--ink3:#9a978f;--accent:#1c3a5e;--a2:#2b5f96;--green:#166140;--gbg:#e6f4ee;--red:#9b1a1a;--rbg:#fce8e8;--bbg:#e8f0fa;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5;min-height:100vh}
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--accent);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.login-box{background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--accent);text-align:center;margin-bottom:4px}
+.login-sub{font-size:11px;text-align:center;color:var(--ink3);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.login-label{font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px}
+.login-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;color:var(--ink);outline:none;transition:border-color .15s}
+.login-input:focus{border-color:var(--a2)}
+.login-field{margin-bottom:18px}
+.login-btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:8px}
+.login-btn:hover{background:var(--a2)}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:12px;min-height:18px}
+.login-footer{font-size:11px;color:var(--ink3);text-align:center;margin-top:24px}
 #loading{position:fixed;inset:0;background:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:20px}
 .ll{font-family:'DM Serif Display',serif;font-size:36px;color:#fff}
 .ls{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase}
@@ -110,6 +124,17 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 </style>
 </head>
 <body>
+<div id="login-screen" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">Karams</div>
+    <div class="login-sub">Dashboard Orçamentário</div>
+    <div class="login-field"><label class="login-label">E-mail</label><input class="login-input" type="email" id="li-email" placeholder="seu@email.com" autocomplete="email"></div>
+    <div class="login-field"><label class="login-label">Senha</label><input class="login-input" type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="li-err"></div>
+    <div class="login-footer">Esqueceu a senha? Solicite ao administrador.</div>
+  </div>
+</div>
 <div id="loading"><div class="ll">Karams</div><div class="spin"></div><div class="ls">Carregando orçamento...</div></div>
 <div id="errmsg"></div>
 <header class="hdr">
@@ -401,7 +426,67 @@ function sTab(n,btn){document.querySelectorAll('.tbtn').forEach(b=>b.classList.r
 function setM(m,btn){cm=m;document.querySelectorAll('.mp').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildKPI();buildDRE();buildContas();buildResp();}
 function buildAll(){buildKPI();buildDRE();buildContas();buildResp();requestAnimationFrame(initCharts);}
 
-loadData();
+// ── NETLIFY IDENTITY AUTH ────────────────────────────────────────────────
+function initAuth() {
+  const ni = window.netlifyIdentity;
+  if (!ni) { loadData(); return; }
+
+  ni.init();
+
+  const user = ni.currentUser();
+  if (user) {
+    setUserInfo(user);
+    showLogout();
+    loadData();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('loading').style.display = 'none';
+  }
+
+  ni.on('login', user => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('loading').style.display = 'flex';
+    ni.close();
+    setUserInfo(user);
+    showLogout();
+    loadData();
+  });
+
+  ni.on('logout', () => { location.reload(); });
+}
+
+function setUserInfo(user) {
+  const name = (user.user_metadata && user.user_metadata.full_name) || user.email || '';
+  document.getElementById('uinfo').textContent = 'Olá, ' + name.split(' ')[0];
+}
+
+function doLogin() {
+  const ni = window.netlifyIdentity;
+  if (!ni) return;
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+  const err   = document.getElementById('li-err');
+  if (!email || !pass) { err.textContent = 'Preencha e-mail e senha.'; return; }
+  err.textContent = '';
+  ni.open('login');
+}
+
+function showLogout() {
+  const b = document.getElementById('btn-logout');
+  if (b) b.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.createElement('button');
+  btn.id = 'btn-logout';
+  btn.textContent = 'Sair';
+  btn.style.cssText = 'background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:4px 12px;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.88);cursor:pointer;margin-right:8px;display:none;';
+  btn.onclick = () => window.netlifyIdentity && window.netlifyIdentity.logout();
+  const hdrR = document.querySelector('.hdr-r');
+  if (hdrR) hdrR.prepend(btn);
+});
+
+initAuth();
 </script>
 </body>
 </html>
