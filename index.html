@@ -304,26 +304,39 @@ function parseWorksheet(ws) {
   let currentCat = null;
   const tmp = [];
 
-  // Detecta quais meses têm dados (orçado) na linha do Faturamento
-  // Varre todas as linhas procurando "Faturamento"
+  // Detecta quais meses mostrar:
+  // Só inclui meses que têm coluna "Realizado" na linha de cabeçalho (linha 4, idx 3)
+  // E que têm valor de orçado na linha do Faturamento
   COLS = [];
   MO   = [];
   MOF  = [];
-  for (let r = range.s.r; r <= range.e.r; r++) {
-    const nome = cellStr(ws, 8, r);
-    if (nome === 'Faturamento') {
-      ALL_COLS.forEach(col => {
-        const v = cellVal(ws, col.orc, r);
-        if (v !== null && Math.abs(v) > 0) {
-          COLS.push({orc: col.orc, real: col.real});
-          MO.push(col.label);
-          MOF.push(col.full);
-        }
-      });
-      break;
-    }
+
+  // Primeiro: descobre quais colunas têm header "Realizado" (row index 3)
+  const realCols = new Set();
+  for (let c = 0; c <= range.e.c; c++) {
+    const v = cellStr(ws, c, 3);
+    if (v && v.toLowerCase().includes('realizado')) realCols.add(c);
   }
-  // Fallback: usa Jan-Mar se não detectar nada
+
+  // Segundo: para cada mês em ALL_COLS, inclui só se a coluna real está em realCols
+  // E se a linha do Faturamento tem orçado > 0
+  let fatRow = -1;
+  for (let r = range.s.r; r <= range.e.r; r++) {
+    if (cellStr(ws, 8, r) === 'Faturamento') { fatRow = r; break; }
+  }
+
+  ALL_COLS.forEach(col => {
+    if (!realCols.has(col.real)) return; // sem coluna Realizado = não mostra
+    if (fatRow < 0) return;
+    const v = cellVal(ws, col.orc, fatRow);
+    if (v !== null && Math.abs(v) > 0) {
+      COLS.push({orc: col.orc, real: col.real});
+      MO.push(col.label);
+      MOF.push(col.full);
+    }
+  });
+
+  // Fallback
   if (COLS.length === 0) {
     COLS = [{orc:13,real:15},{orc:17,real:19},{orc:21,real:23}];
     MO   = ['Jan/26','Fev/26','Mar/26'];
