@@ -2,6 +2,16 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<script>
+// Detecta tokens de convite/recuperação ANTES de qualquer coisa carregar
+(function() {
+  var hash = window.location.hash;
+  if (hash.includes('invite_token=') || hash.includes('recovery_token=') || hash.includes('confirmation_token=')) {
+    window.location.href = '/confirm.html' + hash;
+  }
+})();
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Orçamentário 2026 — Karams Estofados</title>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
