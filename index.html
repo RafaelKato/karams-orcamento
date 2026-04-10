@@ -89,6 +89,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-si
 .dre tr.ebt:hover td{background:#143522}
 .dre tr.llt td{background:var(--accent);color:#fff;font-weight:700;font-size:13px;border:none}
 .dre tr.llt:hover td{background:#1e4470}
+.dre tr.lldi td{background:#0d2210;color:#a8e6c0;font-weight:700;font-size:13px;border:none}
+.dre tr.lldi:hover td{background:#122b18}
+.dre tr.llt:hover td{background:#1e4470}
 .nd{color:var(--ink3);font-style:italic;font-size:10.5px}
 .vc{display:flex;align-items:center;justify-content:flex-end;gap:5px}
 .vb{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap}
@@ -232,6 +235,8 @@ const MDEFS = [
   {key:'Resultado Operacional (EBITDA)', id:'eb', t:'ebt',label:'EBITDA'},
   {key:'Despesas Financeiras',           id:'df', t:'cst',label:'(-) Despesas Financeiras',   cat:'Despesas Financeiras'},
   {key:'Lucro Líquido',                  id:'ll', t:'llt',label:'Lucro Líquido'},
+  {key:'Investimentos',                  id:'inv',t:'cst',label:'(-) Investimentos',            cat:'Investimentos'},
+  {key:'Lucro Líquido Depois dos Investimentos', id:'lldi',t:'lldi',label:'Lucro Líquido Após Investimentos'},
 ];
 const MMAP = {};
 MDEFS.forEach(m => MMAP[m.key] = m);
@@ -375,6 +380,17 @@ function parseWorksheet(ws) {
       if (def.cat) currentCat = def.cat;
     } else if (resp && resp !== 'Responsável' && currentCat) {
       tmp.push({cat:currentCat, resp, n:nome, orc, real});
+    } else if (!resp && currentCat === 'Investimentos') {
+      // Linhas de investimento sem responsável definido na planilha
+      const respMap = {
+        'Computadores e Periféricos': 'Rafael',
+        'Consórcios': 'Fábio',
+        'Construções e Reformas': 'Fábio',
+        'Maquinas e Equipamentos': 'Rafael',
+        'Moveis e Utensilios': 'Rafael',
+      };
+      const respInv = respMap[nome];
+      if (respInv) tmp.push({cat:currentCat, resp:respInv, n:nome, orc, real});
     }
   }
 
@@ -388,7 +404,7 @@ function fF(v){if(v===null||v===undefined)return'–';const a=Math.abs(v);const 
 function fP(v){if(v===null||!isFinite(v))return null;return(v>=0?'+':'')+(v*100).toFixed(1)+'%';}
 function gv(arr,m){if(!arr||!arr.length)return null;if(m==='all'){const ns=arr.filter(x=>x!==null);return ns.length?ns.reduce((a,b)=>a+b,0):null;}const v=arr[m];return(v!==undefined&&v!==null)?v:null;}
 function calcVar(orc,real,t){if(orc===null||real===null)return null;const b=Math.abs(orc);if(b===0)return null;return t==='rec'?(real-orc)/orc:(real-b)/b;}
-function isFav(vp,t){return vp===null?null:(t==='rec'?vp>=0:vp<=0);}
+function isFav(vp,t){return vp===null?null:(t==='rec'||t==='llt'||t==='lldi'?vp>=0:vp<=0);}
 function vbadge(vp,t){if(vp===null)return'<span class="nd">–</span>';return`<span class="vb ${isFav(vp,t)?'pos':'neg'}">${fP(vp)}</span>`;}
 
 // ── KPI ─────────────────────────────────────────────────────────────────────
@@ -419,7 +435,7 @@ function buildDRE(){
     const o=gv(row.orc,cm),r=gv(row.real,cm);
     const vp=calcVar(o,r,row.t),va=(o!==null&&r!==null)?r-Math.abs(o):null;
     const f=isFav(vp,row.t);
-    const tc=row.t==='sub'?'sub':row.t==='ebt'?'ebt':row.t==='llt'?'llt':'';
+    const tc=row.t==='sub'?'sub':row.t==='ebt'?'ebt':row.t==='llt'?'llt':row.t==='lldi'?'lldi':'';
     const vaH=va!==null?`<span style="color:${f?'var(--green)':'var(--red)'};font-weight:600">${fF(va)}</span>`:'<span class="nd">–</span>';
     h+=`<tr class="${tc}"><td>${row.n}</td><td>${o!==null?fF(o):'–'}</td><td>${r!==null?fF(r):'<span class="nd">S/D</span>'}</td><td class="vc">${vaH}</td><td class="vc">${vbadge(vp,row.t)}</td></tr>`;
   });
