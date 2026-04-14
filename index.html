@@ -282,32 +282,30 @@ const selM = new Set(); // empty = todos os meses (Acumulado)
 
 // ── SHEETJS DATA LOADING ──────────────────────────────────────────────────────
 const MMAP = {
-  'Faturamento':              {id:'fat',t:'rec'},
-  'Deduções':                 {id:'ded',t:'cst',cat:'Tributos / Deduções'},
-  'Tributos / Deduções':      {id:'ded',t:'cst',cat:'Tributos / Deduções'},
-  'Receita Líquida':          {id:'rl', t:'sub'},
-  'CPV':                      {id:'cpv',t:'cst',cat:'CPV'},
-  'Custo Direto (MOD)':       {id:'cd', t:'cst',cat:'CPV'},
-  'Custo Indireto (CIF)':     {id:'ci', t:'cst',cat:'CPV'},
-  'Lucro Bruto':              {id:'lb', t:'sub'},
-  'Despesas c/ Pessoal':      {id:'dp', t:'cst',cat:'Despesas c/ Pessoal'},
-  'Despesas Administrativas': {id:'da', t:'cst',cat:'Despesas Administrativas'},
-  'Despesas Comerciais':      {id:'dc', t:'cst',cat:'Despesas Comerciais'},
-  'Serviços de Terceiros':    {id:'st', t:'cst',cat:'Serviços de Terceiros'},
-  'EBITDA':                   {id:'eb', t:'ebt'},
-  'Despesas Financeiras':     {id:'df', t:'cst',cat:'Despesas Financeiras'},
-  'Lucro Líquido':            {id:'ll', t:'llt'},
-  'Investimentos':            {id:'inv',t:'cst',cat:'Investimentos'},
+  'Faturamento':                           {id:'fat', t:'rec'},
+  'Deduções':                              {id:'ded', t:'cst', cat:'Tributos / Deduções'},
+  'Receita Líquida':                       {id:'rl',  t:'sub'},
+  'CPV':                                   {id:'cpv', t:'cst', cat:'CPV'},
+  'Custos Diretos':                        {id:'cd',  t:'cst', cat:'Custos Diretos'},
+  'Custos Indiretos de Fabricação':        {id:'ci',  t:'cst', cat:'Custos Indiretos de Fabricação'},
+  'Lucro Bruto':                           {id:'lb',  t:'sub'},
+  'Despesa com Pessoal':                   {id:'dp',  t:'cst', cat:'Despesa com Pessoal'},
+  'Despesas Administrativas':              {id:'da',  t:'cst', cat:'Despesas Administrativas'},
+  'Despesas Comerciais':                   {id:'dc',  t:'cst', cat:'Despesas Comerciais'},
+  'Serviços de Terceiros':                 {id:'st',  t:'cst', cat:'Serviços de Terceiros'},
+  'Resultado Operacional (EBITDA)':        {id:'eb',  t:'ebt'},
+  'Despesas Financeiras':                  {id:'df',  t:'cst', cat:'Despesas Financeiras'},
+  'Lucro Líquido':                         {id:'ll',  t:'llt'},
+  'Investimentos':                         {id:'inv', t:'cst', cat:'Investimentos'},
   'Lucro Líquido Depois dos Investimentos':{id:'lldi',t:'lldi'},
-  'Lucro Líquido Após Investimentos':      {id:'lldi',t:'lldi'},
 };
 const MDEFS=['fat','ded','rl','cpv','cd','ci','lb','dp','da','dc','st','eb','df','ll','inv','lldi'];
 const MLABELS={
-  fat:'Faturamento', ded:'(-) Tributos / Deduções', rl:'Receita Líquida',
-  cpv:'(-) CPV', cd:'(-) Custo Direto (MOD)', ci:'(-) Custo Indireto (CIF)',
-  lb:'Lucro Bruto', dp:'(-) Despesas c/ Pessoal', da:'(-) Despesas Administrativas',
-  dc:'(-) Despesas Comerciais', st:'(-) Serviços de Terceiros', eb:'EBITDA',
-  df:'(-) Despesas Financeiras', ll:'Lucro Líquido', inv:'(-) Investimentos',
+  fat:'Faturamento',         ded:'(-) Tributos / Deduções',          rl:'Receita Líquida',
+  cpv:'(-) CPV',             cd:'(-) Custos Diretos (MOD)',           ci:'(-) Custos Indiretos de Fabricação (CIF)',
+  lb:'Lucro Bruto',          dp:'(-) Despesa com Pessoal',            da:'(-) Despesas Administrativas',
+  dc:'(-) Despesas Comerciais', st:'(-) Serviços de Terceiros',       eb:'Resultado Operacional (EBITDA)',
+  df:'(-) Despesas Financeiras', ll:'Lucro Líquido',                  inv:'(-) Investimentos',
   lldi:'Lucro Líquido Após Investimentos'
 };
 
@@ -425,6 +423,15 @@ function detectCols(ws){
   }
 }
 
+// Responsáveis fixos para contas de investimento (não têm resp na planilha)
+const RESP_OVERRIDE={
+  'Computadores e Periféricos':'Rafael',
+  'Consórcios':'Fábio',
+  'Construções e Reformas':'Fábio',
+  'Maquinas e Equipamentos':'Rafael',
+  'Moveis e Utensilios':'Rafael',
+};
+
 function parseWorksheet(ws){
   const ref=ws['!ref']||'A1:A1';
   const range=XLSX.utils.decode_range(ref);
@@ -434,7 +441,7 @@ function parseWorksheet(ws){
 
   for(let r=range.s.r;r<=range.e.r;r++){
     const nome=cellStr(ws,8,r);
-    if(!nome) continue;
+    if(!nome||nome.trim()===''||nome==='\xa0') continue;
     const resp=cellStr(ws,7,r);
     const orc=COLS.map(c=>cellVal(ws,c.orc,r));
     const real=COLS.map(c=>cellVal(ws,c.real,r));
@@ -443,6 +450,8 @@ function parseWorksheet(ws){
       const def=MMAP[nome];
       if(!macroMap[def.id]) macroMap[def.id]={id:def.id,n:MLABELS[def.id]||nome,t:def.t,orc,real};
       if(def.cat) currentCat=def.cat;
+    } else if(RESP_OVERRIDE[nome]&&currentCat){
+      tmp.push({cat:currentCat,resp:RESP_OVERRIDE[nome],n:nome,orc,real});
     } else if(resp&&resp!=='Responsável'&&resp!=='Resp.'&&currentCat){
       tmp.push({cat:currentCat,resp,n:nome,orc,real});
     }
